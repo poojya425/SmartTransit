@@ -25,7 +25,7 @@ type Route struct {
 type Bus struct {
 	ID        string    `db:"id" json:"id"`
 	BusNumber string    `db:"bus_number" json:"bus_number"`
-	RouteID   string    `db:"route_id" json:"route_id"`
+	RouteID   *string   `db:"route_id" json:"route_id"`
 	Capacity  int       `db:"capacity" json:"capacity"`
 	Status    string    `db:"status" json:"status"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
@@ -34,8 +34,8 @@ type Bus struct {
 // Booking represents a seat booking made by a user.
 type Booking struct {
 	ID         string    `db:"id" json:"id"`
-	UserID     string    `db:"user_id" json:"user_id"`
-	BusID      string    `db:"bus_id" json:"bus_id"`
+	UserID     *string   `db:"user_id" json:"user_id"`
+	BusID      *string   `db:"bus_id" json:"bus_id"`
 	SeatNumber int       `db:"seat_number" json:"seat_number"`
 	Status     string    `db:"status" json:"status"`
 	CreatedAt  time.Time `db:"created_at" json:"created_at"`

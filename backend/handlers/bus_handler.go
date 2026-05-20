@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -13,6 +15,7 @@ func GetBuses(db *sqlx.DB) gin.HandlerFunc {
 		var buses []models.Bus
 		err := db.Select(&buses, "SELECT * FROM buses ORDER BY created_at DESC")
 		if err != nil {
+			log.Printf("GetBuses error: %v", err)
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
@@ -27,6 +30,7 @@ func GetBusById(db *sqlx.DB) gin.HandlerFunc {
 		var bus models.Bus
 		err := db.Get(&bus, "SELECT * FROM buses WHERE id=$1", id)
 		if err != nil {
+			log.Printf("GetBusById error: %v", err)
 			c.JSON(404, gin.H{"error": "Bus not found"})
 			return
 		}
@@ -39,15 +43,24 @@ func CreateBus(db *sqlx.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var bus models.Bus
 		if err := c.ShouldBindJSON(&bus); err != nil {
+			log.Printf("CreateBus bind error: %v", err)
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
 		bus.ID = uuid.New().String()
+		if bus.Status == "" {
+			bus.Status = "active"
+		}
+		// Set RouteID to nil if empty string to avoid UUID parse error
+		if bus.RouteID != nil && *bus.RouteID == "" {
+			bus.RouteID = nil
+		}
 		_, err := db.Exec(
 			"INSERT INTO buses (id, bus_number, route_id, capacity, status) VALUES ($1,$2,$3,$4,$5)",
 			bus.ID, bus.BusNumber, bus.RouteID, bus.Capacity, bus.Status,
 		)
 		if err != nil {
+			log.Printf("CreateBus db error: %v", err)
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
@@ -61,6 +74,7 @@ func UpdateBus(db *sqlx.DB) gin.HandlerFunc {
 		id := c.Param("id")
 		var bus models.Bus
 		if err := c.ShouldBindJSON(&bus); err != nil {
+			log.Printf("UpdateBus bind error: %v", err)
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
@@ -69,6 +83,7 @@ func UpdateBus(db *sqlx.DB) gin.HandlerFunc {
 			bus.BusNumber, bus.RouteID, bus.Capacity, bus.Status, id,
 		)
 		if err != nil {
+			log.Printf("UpdateBus db error: %v", err)
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
@@ -82,6 +97,7 @@ func DeleteBus(db *sqlx.DB) gin.HandlerFunc {
 		id := c.Param("id")
 		_, err := db.Exec("DELETE FROM buses WHERE id=$1", id)
 		if err != nil {
+			log.Printf("DeleteBus db error: %v", err)
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
