@@ -8,7 +8,7 @@ import (
 )
 
 // Register sets up all API routes and middleware.
-func Register(r *gin.Engine, db *sqlx.DB) {
+func Register(r *gin.Engine, db *sqlx.DB, jwtSecret string) {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -17,6 +17,11 @@ func Register(r *gin.Engine, db *sqlx.DB) {
 
 	api := r.Group("/api/v1")
 	{
+		// Auth routes
+		auth := api.Group("/auth")
+		auth.POST("/register", handlers.Register(db, jwtSecret))
+		auth.POST("/login", handlers.Login(db, jwtSecret))
+
 		// Bus routes
 		buses := api.Group("/buses")
 		buses.GET("", handlers.GetBuses(db))

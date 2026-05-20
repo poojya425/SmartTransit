@@ -26,7 +26,7 @@ func main() {
 	r := gin.Default()
 
 	// Register all routes
-	routes.Register(r, db)
+	routes.Register(r, db, cfg.JWTSecret)
 
 	// Start server on port 8080
 	log.Infof("Server starting on port %s", cfg.Port)
