@@ -9,7 +9,9 @@ class BusService {
   Future<List<Bus>> getBuses() async {
     final response = await http.get(
       Uri.parse('${ApiConfig.baseUrl}/buses'),
+      headers: ApiConfig.headers,
     );
+
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((json) => Bus.fromJson(json)).toList();
@@ -20,8 +22,10 @@ class BusService {
   // getBusById returns a single bus by ID.
   Future<Bus> getBusById(String id) async {
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/buses/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/buses'),
+      headers: ApiConfig.headers,
     );
+
     if (response.statusCode == 200) {
       return Bus.fromJson(jsonDecode(response.body));
     }
@@ -32,9 +36,10 @@ class BusService {
   Future<Bus> createBus(Bus bus) async {
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/buses'),
-      headers: {'Content-Type': 'application/json'},
+      headers: ApiConfig.headers,
       body: jsonEncode(bus.toJson()),
     );
+
     if (response.statusCode == 201) {
       return Bus.fromJson(jsonDecode(response.body));
     }
@@ -45,9 +50,10 @@ class BusService {
   Future<void> updateBus(String id, Bus bus) async {
     final response = await http.put(
       Uri.parse('${ApiConfig.baseUrl}/buses/$id'),
-      headers: {'Content-Type': 'application/json'},
+      headers: ApiConfig.headers,
       body: jsonEncode(bus.toJson()),
     );
+
     if (response.statusCode != 200) {
       throw Exception('Failed to update bus');
     }
@@ -57,7 +63,9 @@ class BusService {
   Future<void> deleteBus(String id) async {
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/buses/$id'),
+      headers: ApiConfig.headers,
     );
+
     if (response.statusCode != 200) {
       throw Exception('Failed to delete bus');
     }

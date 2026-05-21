@@ -6,10 +6,11 @@ import '../config/api_config.dart';
 // AuthService handles login and register API calls.
 class AuthService {
   // register creates a new user account.
-  Future<void> register(String name, String email, String phone, String password) async {
+  Future<void> register(
+      String name, String email, String phone, String password) async {
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/auth/register'),
-      headers: {'Content-Type': 'application/json'},
+      headers: ApiConfig.headers,
       body: jsonEncode({
         'name': name,
         'email': email,
@@ -17,6 +18,7 @@ class AuthService {
         'password': password,
       }),
     );
+
     if (response.statusCode != 201) {
       final error = jsonDecode(response.body);
       throw Exception(error['error'] ?? 'Registration failed');
@@ -27,12 +29,13 @@ class AuthService {
   Future<void> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/auth/login'),
-      headers: {'Content-Type': 'application/json'},
+      headers: ApiConfig.headers,
       body: jsonEncode({
         'email': email,
         'password': password,
       }),
     );
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final prefs = await SharedPreferences.getInstance();
